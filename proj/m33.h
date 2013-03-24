@@ -13,6 +13,7 @@ public:
   M33 operator*(M33 m1);
   V3 GetColumn(int i);
   void SetColumn(int i, V3 v);
+  void SetRow(int i, V3 v);
   friend ostream& operator<<(ostream &os, M33 m);
   M33 Invert();
   void SetRotationY(float thetad);

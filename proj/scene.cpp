@@ -30,6 +30,9 @@ Scene::Scene()
     int w = sci*320;
     int h = sci*175;
 
+	getNormals();
+	
+
     fb = new FrameBuffer(u0, v0, w, h);
 
     fb->label("SW Framebuffer");
@@ -41,6 +44,7 @@ Scene::Scene()
     hwfb->isHW = true;
     hwfb->show();
 
+	
     // position UI window
     gui->uiw->position(0, v0);
 
@@ -303,9 +307,9 @@ FrameBuffer * Scene::openImg(string fileName)
     int width = src.width();
     int height = src.height();
 
-    FrameBuffer * fb;
+    FrameBuffer * img;
 
-    fb = new FrameBuffer(0, 0, width, height);
+    img = new FrameBuffer(0, 0, width, height);
     
     for(int h = 0; h < height; h++)
     {
@@ -315,11 +319,73 @@ FrameBuffer * Scene::openImg(string fileName)
             g = src.atXY(w, h, 1);
             b = src.atXY(w, h, 2);
 
-            V3 colorVal((float)r/255, (float)g/255, (float)b/255);
+			float greyCol = (float)r/255 + (float)g/255 + (float)b/255;
+			greyCol/= 3;
+            
+			V3 colorVal(greyCol, greyCol, greyCol);
 
-            fb->Set(w, h, colorVal.GetColor());
+			//V3 colorVal((float)r/255, (float)g/255, (float)b/255);
+			
+            img->Set(w, h, colorVal.GetColor());
         }
     }
 
-    return fb;
+    return img;
+}
+
+void Scene::getNormals()
+{
+	right = openImg("pics/testA-1.bmp");
+	up = openImg("pics/testA-2.bmp");
+	left = openImg("pics/testA-3.bmp");
+
+	lDirs = new M33();
+
+	lDirs->SetRow(0, V3(-1.0f, 0.0f, 1.0f).Normalized());
+	lDirs->SetRow(1, V3(0.0f, 1.0f, 1.0f).Normalized());
+	lDirs->SetRow(2, V3(1.0f, 0.0f, 1.0f).Normalized());
+
+	lDirs->Invert();
+	
+	const int imgW = (int) right->w;
+	const int imgH = (int) right->h;
+
+	FrameBuffer * img;
+
+    img = new FrameBuffer(0, 0, imgW, imgH);
+
+	
+	V3 * normals = new V3[imgW*imgH];
+
+	
+
+	for(int i = 0; i < imgW; i++)
+	{
+		for(int j = 0; j < imgH; j++)
+		{
+			right->show();
+			unsigned char *pixelR = (unsigned char *)&right->pix[j*imgW + i];
+			unsigned char *pixelU = (unsigned char *)&up->pix[j*imgW + i];
+			unsigned char *pixelL = (unsigned char *)&left->pix[j*imgW + i];
+			
+			V3 colors = V3((int)pixelR[0], (int)pixelU[0], (int)pixelL[0]);
+
+			normals[j*imgW + i] = lDirs->operator*(colors);
+			
+			normals[j*imgW + i] = normals[j*imgW + i] / sqrt(normals[j*imgW + i] * normals[j*imgW + i]);
+
+			unsigned char * colYoh = new unsigned char;
+
+			colYoh[0] = normals[j*imgW + i][0];
+			colYoh[1] = normals[j*imgW + i][1];
+			colYoh[2] = normals[j*imgW + i][2];
+
+			img->pix[j*imgW + i] = (unsigned int)colYoh;
+			
+			//cerr << normals[j*imgW + i][0] << " " << normals[j*imgW + i][1] << " " << normals[j*imgW + i] << endl;
+
+		}
+	}
+
+	//img->show();
 }

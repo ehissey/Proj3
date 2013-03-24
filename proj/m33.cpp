@@ -48,6 +48,11 @@ void M33::SetColumn(int i, V3 v) {
 
 }
 
+void M33::SetRow(int i, V3 v)
+{
+	r[i] = v;
+}
+
 ostream& operator<<(ostream &os, M33 m) {
 
   return os << m[0] << endl << m[1] << endl << m[2] << endl;

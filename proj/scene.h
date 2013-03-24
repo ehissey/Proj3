@@ -10,6 +10,7 @@
 #include "CGInterface.h"
 
 
+
 class Scene {
 public:
 
@@ -23,9 +24,9 @@ public:
     TMesh *tms; // geometry
     int tmsN; // number of triangle meshes
     GUI *gui; // user interface
-    FrameBuffer *fb, *hwfb; // SW and HW framebuffers
+    FrameBuffer *fb, *hwfb, *up, *left, *right; // SW and HW framebuffers
 
-
+	M33 * lDirs; //light directions from images
 
     Scene();
     void DBG();
@@ -48,6 +49,7 @@ public:
     void GoToView2();
     void GoToView(PPC *nppc);
 	FrameBuffer * openImg(string fileName);
+	void getNormals();
 };
 
 extern Scene *scene;
