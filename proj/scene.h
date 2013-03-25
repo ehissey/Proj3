@@ -24,9 +24,11 @@ public:
     TMesh *tms; // geometry
     int tmsN; // number of triangle meshes
     GUI *gui; // user interface
-    FrameBuffer *fb, *hwfb, *up, *left, *right; // SW and HW framebuffers
+    FrameBuffer *fb, *hwfb, *up, *left, *right,* imgScene; // SW and HW framebuffers
 
 	M33 * lDirs; //light directions from images
+
+	V3 * normals, curLightPos;
 
     Scene();
     void DBG();
@@ -38,18 +40,20 @@ public:
 
     void FrameSetup(); // clearing buffers for SW rendering
 
-    void SaveView0();
-    void LoadView0();
-    void GoToView0();
-    void SaveView1();
-    void LoadView1();
-    void GoToView1();
-    void SaveView2();
-    void LoadView2();
-    void GoToView2();
-    void GoToView(PPC *nppc);
+    void lightPosX();
+	void lightNegX();
+	
+    void lightPosY();
+	void lightNegY();
+
+    void lightPosZ();
+	void lightNegZ();
+
+	void setLightPos();
+
 	FrameBuffer * openImg(string fileName);
 	void getNormals();
+	void relight(V3 lightPos, FrameBuffer * img);
 };
 
 extern Scene *scene;

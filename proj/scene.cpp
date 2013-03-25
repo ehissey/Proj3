@@ -30,7 +30,7 @@ Scene::Scene()
     int w = sci*320;
     int h = sci*175;
 
-	getNormals();
+	
 	
 
     fb = new FrameBuffer(u0, v0, w, h);
@@ -42,11 +42,11 @@ Scene::Scene()
 
     hwfb->label("HW Framebuffer");
     hwfb->isHW = true;
-    hwfb->show();
+   // hwfb->show();
 
 	
     // position UI window
-    gui->uiw->position(0, v0);
+    gui->uiw->position(50, v0+25);
 
     // create camera for rendering scene
     float hfov = 45.0f;
@@ -75,8 +75,17 @@ Scene::Scene()
 
 
     // render scene
-    Render();
+    //Render();
 
+	right = openImg("pics/testA-1.bmp");
+	up = openImg("pics/testA-2.bmp");
+	left = openImg("pics/testA-3.bmp");
+
+	imgScene = new FrameBuffer(u0+350, v0+25, right->w, right->h);
+
+	getNormals();
+	
+	curLightPos = V3(0,0,0);
 }
 
 
@@ -130,90 +139,40 @@ void Scene::DBG()
 
 }
 
-// GUI view saving, loading and interpolation
-void Scene::SaveView0()
+
+void Scene::lightPosX()
 {
-
-    ppc->Save("mydbg/view0.txt");
-
+	curLightPos = curLightPos + V3(1,0,0);
 }
 
-void Scene::LoadView0()
+void Scene::lightNegX()
 {
-
-    ppc->Load("mydbg/view0.txt");
-    Render();
-
+	curLightPos = curLightPos + V3(-1,0,0);
 }
 
-void Scene::GoToView0()
+void Scene::lightPosY()
 {
-
-    PPC nppc;
-    nppc.Load("mydbg/view0.txt");
-    GoToView(&nppc);
-
+	curLightPos = curLightPos + V3(0,1,0);
 }
 
-void Scene::SaveView1() 
+void Scene::lightNegY()
 {
-
-    ppc->Save("mydbg/view1.txt");
-
+	curLightPos = curLightPos + V3(0,-1,0);
 }
 
-void Scene::LoadView1()
+void Scene::lightPosZ()
 {
-
-    ppc->Load("mydbg/view1.txt");
-    Render();
-
+	curLightPos = curLightPos + V3(0,0,1);
 }
 
-void Scene::GoToView1() 
+void Scene::lightNegZ()
 {
-
-    PPC nppc;
-    nppc.Load("mydbg/view1.txt");
-    GoToView(&nppc);
-
+	curLightPos = curLightPos + V3(0,0,-1);
 }
 
-void Scene::SaveView2() 
+void Scene::setLightPos()
 {
-
-    ppc->Save("mydbg/view2.txt");
-
-}
-
-void Scene::LoadView2() 
-{
-
-    ppc->Load("mydbg/view2.txt");
-    Render();
-
-}
-
-void Scene::GoToView2() 
-{
-
-    PPC nppc;
-    nppc.Load("mydbg/view2.txt");
-    GoToView(&nppc);
-
-}
-
-void Scene::GoToView(PPC *nppc) 
-{
-
-    PPC oppc(*ppc);
-    int n = 100;
-    for (int i = 0; i < n; i++) {
-        float frac = (float) i / (float) (n-1);
-        *ppc = ppc->Interpolate(&oppc, nppc, frac);
-        Render();
-        Fl::check();
-    }
+	relight(curLightPos, imgScene);
 }
 
 ////////// HW rendering 
@@ -335,9 +294,7 @@ FrameBuffer * Scene::openImg(string fileName)
 
 void Scene::getNormals()
 {
-	right = openImg("pics/testA-1.bmp");
-	up = openImg("pics/testA-2.bmp");
-	left = openImg("pics/testA-3.bmp");
+	
 
 	lDirs = new M33();
 
@@ -350,42 +307,50 @@ void Scene::getNormals()
 	const int imgW = (int) right->w;
 	const int imgH = (int) right->h;
 
-	FrameBuffer * img;
-
-    img = new FrameBuffer(0, 0, imgW, imgH);
-
+    FrameBuffer * img = new FrameBuffer(0, 0, imgW, imgH);
 	
-	V3 * normals = new V3[imgW*imgH];
-
-	
+	normals = new V3[imgW*imgH];	
 
 	for(int i = 0; i < imgW; i++)
 	{
 		for(int j = 0; j < imgH; j++)
 		{
-			right->show();
-			unsigned char *pixelR = (unsigned char *)&right->pix[j*imgW + i];
-			unsigned char *pixelU = (unsigned char *)&up->pix[j*imgW + i];
-			unsigned char *pixelL = (unsigned char *)&left->pix[j*imgW + i];
+			float r = right->Getv(i,j)[0];
+			float u = up->Getv(i,j)[0];
+			float l = left->Getv(i,j)[0];
 			
-			V3 colors = V3((int)pixelR[0], (int)pixelU[0], (int)pixelL[0]);
+			V3 colors = V3(r,u,l);
 
-			normals[j*imgW + i] = lDirs->operator*(colors);
+			normals[j*imgW + i] = *lDirs*colors;
 			
-			normals[j*imgW + i] = normals[j*imgW + i] / sqrt(normals[j*imgW + i] * normals[j*imgW + i]);
+			normals[j*imgW + i].Normalized();
 
-			unsigned char * colYoh = new unsigned char;
-
-			colYoh[0] = normals[j*imgW + i][0];
-			colYoh[1] = normals[j*imgW + i][1];
-			colYoh[2] = normals[j*imgW + i][2];
-
-			img->pix[j*imgW + i] = (unsigned int)colYoh;
-			
-			//cerr << normals[j*imgW + i][0] << " " << normals[j*imgW + i][1] << " " << normals[j*imgW + i] << endl;
-
+			img->Set(i,j, normals[j*imgW + i].GetColor());
 		}
 	}
 
 	//img->show();
+}
+void Scene::relight(V3 lightPos, FrameBuffer * img)
+{
+	const int imgW = (int) right->w;
+	const int imgH = (int) right->h;
+
+	V3 lightDir = lightPos-V3(0,0,-1);
+	
+	lightDir.Normalized();
+
+	for(int i = 0; i < imgW; i++)
+	{
+		for(int j = 0; j < imgH; j++)
+		{
+			float albedo = sqrt(normals[j*imgW + i] * normals[j*imgW + i]);
+			
+			float rColor = albedo*(normals[j*imgW + i]*lightDir);
+			V3 newCol = V3(rColor,rColor,rColor);
+			img->Set(i,j, newCol.GetColor());
+		}
+	}
+	img->redraw();
+	img->show();
 }

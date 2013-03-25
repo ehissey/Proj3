@@ -1,2 +1,2 @@
 ﻿  scene.cpp
-  code.vcxproj -> C:\Users\Evan\Desktop\P3\trunk\proj\Debug\code.exe
+LINK : fatal error LNK1104: cannot open file 'C:\Users\Evan\Desktop\P3\trunk\proj\Debug\code.exe'

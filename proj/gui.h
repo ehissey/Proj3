@@ -5,6 +5,7 @@
 #include <FL/Fl.H>
 #include <FL/Fl_Double_Window.H>
 #include <FL/Fl_Button.H>
+#include <FL/Fl_Text_Display.H>
 
 class GUI {
 public:
@@ -13,35 +14,30 @@ public:
 private:
   void cb_DBG_i(Fl_Button*, void*);
   static void cb_DBG(Fl_Button*, void*);
-  void cb_Save_i(Fl_Button*, void*);
-  static void cb_Save(Fl_Button*, void*);
-  void cb_Load_i(Fl_Button*, void*);
-  static void cb_Load(Fl_Button*, void*);
-  void cb_Go_i(Fl_Button*, void*);
-  static void cb_Go(Fl_Button*, void*);
-  void cb_Save1_i(Fl_Button*, void*);
-  static void cb_Save1(Fl_Button*, void*);
-  void cb_Load1_i(Fl_Button*, void*);
-  static void cb_Load1(Fl_Button*, void*);
-  void cb_Go1_i(Fl_Button*, void*);
-  static void cb_Go1(Fl_Button*, void*);
-  void cb_Save2_i(Fl_Button*, void*);
-  static void cb_Save2(Fl_Button*, void*);
-  void cb_Load2_i(Fl_Button*, void*);
-  static void cb_Load2(Fl_Button*, void*);
-  void cb_Go2_i(Fl_Button*, void*);
-  static void cb_Go2(Fl_Button*, void*);
+  void cb_Render_i(Fl_Button*, void*);
+  static void cb_Render(Fl_Button*, void*);
+  void cb_X_i(Fl_Button*, void*);
+  static void cb_X(Fl_Button*, void*);
+  void cb_X1_i(Fl_Button*, void*);
+  static void cb_X1(Fl_Button*, void*);
+  void cb_Y_i(Fl_Button*, void*);
+  static void cb_Y(Fl_Button*, void*);
+  void cb_Y1_i(Fl_Button*, void*);
+  static void cb_Y1(Fl_Button*, void*);
+  void cb_Z_i(Fl_Button*, void*);
+  static void cb_Z(Fl_Button*, void*);
+  void cb_Z1_i(Fl_Button*, void*);
+  static void cb_Z1(Fl_Button*, void*);
 public:
+  Fl_Text_Display *lPosDisp;
   void show();
   void DBG_cb();
-  void SaveView0B_cb();
-  void LoadView0B_cb();
-  void GoToView0B_cb();
-  void SaveView1B_cb();
-  void LoadView1B_cb();
-  void GoToView1B_cb();
-  void SaveView2B_cb();
-  void LoadView2B_cb();
-  void GoToView2B_cb();
+  void LightPosX();
+  void LightNegX();
+  void LightPosY();
+  void LightNegY();
+  void LightPosZ();
+  void LightNegZ();
+  void SetLightPos();
 };
 #endif

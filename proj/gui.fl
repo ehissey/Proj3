@@ -8,58 +8,52 @@ class GUI {open
   Function {GUI()} {open
   } {
     Fl_Window uiw {
-      label GUI open
-      xywh {675 144 375 430} type Double visible
+      label {Evan's Photometric Stereo} open
+      xywh {675 144 373 312} type Double visible
     } {
       Fl_Button {} {
         label DBG
         callback {DBG_cb()}
-        xywh {15 15 225 40} selection_color 72
+        xywh {70 20 230 40} selection_color 72
       }
       Fl_Button {} {
-        label {Save View 0}
-        callback {SaveView0B_cb()}
-        xywh {15 65 95 40}
+        label Render
+        callback {SetLightPos()}
+        xywh {70 245 230 40}
       }
       Fl_Button {} {
-        label {Load View 0}
-        callback {LoadView0B_cb()}
-        xywh {15 110 95 40}
+        label {X++}
+        callback {LightPosX()}
+        xywh {70 146 65 40}
       }
       Fl_Button {} {
-        label {Go To View 0}
-        callback {GoToView0B_cb()}
-        xywh {15 155 95 40}
+        label {X--}
+        callback {LightNegX()}
+        xywh {70 190 65 40}
       }
       Fl_Button {} {
-        label {Save View 1}
-        callback {SaveView1B_cb()}
-        xywh {140 65 95 40}
+        label {Y++}
+        callback {LightPosY()}
+        xywh {155 145 65 40}
       }
       Fl_Button {} {
-        label {Load View 1}
-        callback {LoadView1B_cb()}
-        xywh {140 110 95 40}
+        label {Y--}
+        callback {LightNegY()}
+        xywh {155 190 65 40}
       }
       Fl_Button {} {
-        label {Go To View 1}
-        callback {GoToView1B_cb()}
-        xywh {140 155 95 40}
+        label {Z++}
+        callback {LightPosZ()}
+        xywh {235 145 65 40}
       }
       Fl_Button {} {
-        label {Save View 2}
-        callback {SaveView2B_cb()}
-        xywh {15 205 95 40}
+        label {Z--}
+        callback {LightNegZ()}
+        xywh {235 195 65 40}
       }
-      Fl_Button {} {
-        label {Load View 2}
-        callback {LoadView2B_cb()}
-        xywh {15 250 95 40}
-      }
-      Fl_Button {} {
-        label {Go To View 2}
-        callback {GoToView2B_cb()}
-        xywh {15 295 95 40}
+      Fl_Text_Display lPosDisp {
+        label {Current Light Position} selected
+        xywh {100 95 165 40}
       }
     }
   }
@@ -75,41 +69,32 @@ class GUI {open
   } {
     code {scene->DBG();} {}
   }
-  Function {SaveView0B_cb()} {open
+  Function {LightPosX()} {open
   } {
-    code {scene->SaveView0();} {}
+    code {scene->lightPosX();} {}
   }
-  Function {LoadView0B_cb()} {open
+  Function {LightNegX()} {open
   } {
-    code {scene->LoadView0();} {}
+    code {scene->lightNegX();} {}
   }
-  Function {GoToView0B_cb()} {open
+  Function {LightPosY()} {open
   } {
-    code {scene->GoToView0();} {}
+    code {scene->lightPosY();} {}
   }
-  Function {SaveView1B_cb()} {open
+  Function {LightNegY()} {open
   } {
-    code {scene->SaveView1();} {}
+    code {scene->lightNegY();} {}
   }
-  Function {LoadView1B_cb()} {open
+  Function {LightPosZ()} {open
   } {
-    code {scene->LoadView1();} {}
+    code {scene->lightPosZ();} {}
   }
-  Function {GoToView1B_cb()} {open
+  Function {LightNegZ()} {open
   } {
-    code {scene->GoToView1();} {}
+    code {scene->lightNegZ();} {}
   }
-  Function {SaveView2B_cb()} {open
+  Function {SetLightPos()} {open
   } {
-    code {scene->SaveView2();} {selected
-    }
-  }
-  Function {LoadView2B_cb()} {open
-  } {
-    code {scene->LoadView2();} {}
-  }
-  Function {GoToView2B_cb()} {open
-  } {
-    code {scene->GoToView2();} {}
+    code {scene->setLightPos();} {}
   }
 } 
