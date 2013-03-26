@@ -18,6 +18,8 @@ public:
     CGInterface *cgi;
     ShaderOneInterface *soi;
 
+	string posDisp;
+	Fl_Text_Buffer * buff;
 
     PPC *ppc; // camera used to render current frame
 
@@ -54,6 +56,8 @@ public:
 	FrameBuffer * openImg(string fileName);
 	void getNormals();
 	void relight(V3 lightPos, FrameBuffer * img);
+
+	void changePositionDisplay();
 };
 
 extern Scene *scene;

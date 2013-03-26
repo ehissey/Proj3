@@ -87,7 +87,7 @@ GUI::GUI() {
     { Fl_Button* o = new Fl_Button(235, 195, 65, 40, "Z--");
       o->callback((Fl_Callback*)cb_Z1);
     } // Fl_Button* o
-    { lPosDisp = new Fl_Text_Display(100, 95, 165, 40, "Current Light Position");
+    { lPosDisp = new Fl_Text_Display(150, 95, 75, 40, "Current Light Position");
     } // Fl_Text_Display* lPosDisp
     uiw->end();
   } // Fl_Double_Window* uiw
@@ -100,7 +100,6 @@ int main(int argc, char **argv) {
 
 void GUI::show() {
   uiw->show();
-
 }
 
 void GUI::DBG_cb() {
@@ -109,7 +108,6 @@ void GUI::DBG_cb() {
 
 void GUI::LightPosX() {
   scene->lightPosX();
-  
 }
 
 void GUI::LightNegX() {

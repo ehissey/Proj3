@@ -6,6 +6,8 @@
 #include "v3.h"
 #include <iostream>
 #include<math.h>
+#include <sstream>
+
 
 using namespace std;
 using namespace cimg_library;
@@ -20,8 +22,16 @@ Scene::Scene()
 
     // create user interface
     gui = new GUI();
+	
     gui->show();
+	buff = new Fl_Text_Buffer();
 
+	gui->lPosDisp->buffer(buff);
+
+	buff->text("0 0 0");
+	gui->lPosDisp->textsize(17);
+
+	posDisp = "";
 
     // create SW framebuffer
     int u0 = 20;
@@ -143,31 +153,37 @@ void Scene::DBG()
 void Scene::lightPosX()
 {
 	curLightPos = curLightPos + V3(1,0,0);
+	changePositionDisplay();
 }
 
 void Scene::lightNegX()
 {
 	curLightPos = curLightPos + V3(-1,0,0);
+	changePositionDisplay();
 }
 
 void Scene::lightPosY()
 {
 	curLightPos = curLightPos + V3(0,1,0);
+	changePositionDisplay();
 }
 
 void Scene::lightNegY()
 {
 	curLightPos = curLightPos + V3(0,-1,0);
+	changePositionDisplay();
 }
 
 void Scene::lightPosZ()
 {
 	curLightPos = curLightPos + V3(0,0,1);
+	changePositionDisplay();
 }
 
 void Scene::lightNegZ()
 {
 	curLightPos = curLightPos + V3(0,0,-1);
+	changePositionDisplay();
 }
 
 void Scene::setLightPos()
@@ -353,4 +369,24 @@ void Scene::relight(V3 lightPos, FrameBuffer * img)
 	}
 	img->redraw();
 	img->show();
+}
+
+void Scene::changePositionDisplay()
+{
+	
+	std::ostringstream oss;
+
+	oss << curLightPos[0] << " " 
+		<< curLightPos[1] << " " 
+		<< curLightPos[2] << " ";
+
+	posDisp.clear();
+
+	posDisp = oss.str();
+
+	buff->text(posDisp.c_str());
+	gui->show();
+
+	//lPosDisp->buffer()->text(scene->posDisp.c_str());
+
 }

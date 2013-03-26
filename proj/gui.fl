@@ -8,7 +8,7 @@ class GUI {open
   Function {GUI()} {open
   } {
     Fl_Window uiw {
-      label {Evan's Photometric Stereo} open
+      label {Evan's Photometric Stereo} open selected
       xywh {675 144 373 312} type Double visible
     } {
       Fl_Button {} {
@@ -52,8 +52,8 @@ class GUI {open
         xywh {235 195 65 40}
       }
       Fl_Text_Display lPosDisp {
-        label {Current Light Position} selected
-        xywh {100 95 165 40}
+        label {Current Light Position}
+        xywh {150 95 75 40}
       }
     }
   }
