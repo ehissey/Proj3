@@ -26,7 +26,9 @@ public:
     TMesh *tms; // geometry
     int tmsN; // number of triangle meshes
     GUI *gui; // user interface
-    FrameBuffer *fb, *hwfb, *up, *left, *right,* imgScene; // SW and HW framebuffers
+    
+	FrameBuffer *fb, *hwfb, *up, *left, *right,* imgScene; // SW and HW framebuffers
+	FrameBuffer *tB1, *tB2, *tB3, *tB4, *tB5;  
 
 	M33 * lDirs; //light directions from images
 
@@ -54,7 +56,10 @@ public:
 	void setLightPos();
 
 	FrameBuffer * openImg(string fileName);
+	FrameBuffer * openImgGrey(string fileName);
+
 	void getNormals();
+	void getNormalsFive();
 	void relight(V3 lightPos, FrameBuffer * img);
 
 	void changePositionDisplay();

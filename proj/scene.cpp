@@ -87,9 +87,15 @@ Scene::Scene()
     // render scene
     //Render();
 
-	right = openImg("pics/testA-1.bmp");
-	up = openImg("pics/testA-2.bmp");
-	left = openImg("pics/testA-3.bmp");
+	right = openImgGrey("pics/testA-1.bmp");
+	up = openImgGrey("pics/testA-2.bmp");
+	left = openImgGrey("pics/testA-3.bmp");
+
+	tB1 = openImgGrey("pics/testB-1.bmp");
+	tB2 = openImgGrey("pics/testB-2.bmp");
+	tB3 = openImgGrey("pics/testB-3.bmp");
+	tB4 = openImgGrey("pics/testB-4.bmp");
+	tB5 = openImgGrey("pics/testB-5.bmp");
 
 	imgScene = new FrameBuffer(u0+350, v0+25, right->w, right->h);
 
@@ -272,6 +278,42 @@ void Scene::RenderGPU()
     cgi->DisableProfiles();
 }
 
+FrameBuffer * Scene::openImgGrey(string fileName)
+{
+    CImg<unsigned char> src(fileName.c_str());
+
+
+    int r, g, b;
+
+    int width = src.width();
+    int height = src.height();
+
+    FrameBuffer * img;
+
+    img = new FrameBuffer(0, 0, width, height);
+    
+    for(int h = 0; h < height; h++)
+    {
+        for(int w = 0; w < width; w++)
+        {
+            r = src.atXY(w, h, 0);
+            g = src.atXY(w, h, 1);
+            b = src.atXY(w, h, 2);
+
+			float greyCol = (float)r/255 + (float)g/255 + (float)b/255;
+			greyCol/= 3;
+            
+			V3 colorVal(greyCol, greyCol, greyCol);
+
+			//V3 colorVal((float)r/255, (float)g/255, (float)b/255);
+			
+            img->Set(w, h, colorVal.GetColor());
+        }
+    }
+
+    return img;
+}
+
 FrameBuffer * Scene::openImg(string fileName)
 {
     CImg<unsigned char> src(fileName.c_str());
@@ -389,4 +431,58 @@ void Scene::changePositionDisplay()
 
 	//lPosDisp->buffer()->text(scene->posDisp.c_str());
 
+}
+
+void Scene::getNormalsFive()
+{
+	
+
+	lDirs = new M33();
+
+	V3 possibLD[5];
+
+	possibLD[0] = V3(-1.0f, 0.0f, 1.0f); //right
+	possibLD[1] = V3(0.0f, 1.0f, 1.0f); //up
+	possibLD[2] = V3(1.0f, 0.0f, 1.0f); //left
+	possibLD[3] = V3(-1.0f, 0.0f, 1.0f); //??
+	possibLD[4] = V3(-1.0f, 0.0f, 1.0f); //???
+
+	int set1, set2, set3;
+	set1 = set2 = set3 = -1;
+
+	
+
+	lDirs->Invert();
+	
+	const int imgW = (int) right->w;
+	const int imgH = (int) right->h;
+
+    FrameBuffer * img = new FrameBuffer(0, 0, imgW, imgH);
+	
+	normals = new V3[imgW*imgH];
+
+	float testBVals[5];
+
+
+	for(int i = 0; i < imgW; i++)
+	{
+		for(int j = 0; j < imgH; j++)
+		{
+			testBVals[0] = tB1->Getv(i,j)[0];
+			testBVals[1] = tB2->Getv(i,j)[0];
+			testBVals[2] = tB3->Getv(i,j)[0];
+			testBVals[3] = tB4->Getv(i,j)[0];
+			testBVals[4] = tB5->Getv(i,j)[0];
+
+			//V3 colors = V3(r,u,l);
+
+			//normals[j*imgW + i] = *lDirs*colors;
+			
+			normals[j*imgW + i].Normalized();
+
+			img->Set(i,j, normals[j*imgW + i].GetColor());
+		}
+	}
+
+	//img->show();
 }
