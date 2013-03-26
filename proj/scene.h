@@ -63,6 +63,8 @@ public:
 	void relight(V3 lightPos, FrameBuffer * img);
 
 	void changePositionDisplay();
+
+	void getSet(float * vals, int * set);
 };
 
 extern Scene *scene;

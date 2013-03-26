@@ -7,6 +7,7 @@
 #include <iostream>
 #include<math.h>
 #include <sstream>
+#include <climits>
 
 
 using namespace std;
@@ -99,7 +100,7 @@ Scene::Scene()
 
 	imgScene = new FrameBuffer(u0+350, v0+25, right->w, right->h);
 
-	getNormals();
+	getNormalsFive();
 	
 	curLightPos = V3(0,0,0);
 }
@@ -108,7 +109,6 @@ Scene::Scene()
 // SW per frame setup
 void Scene::FrameSetup() 
 {
-
     fb->Set(0xFF7F0000); // clear color buffer
     fb->SetZB(0.0f); // clear z buffer
 }
@@ -444,13 +444,10 @@ void Scene::getNormalsFive()
 	possibLD[0] = V3(-1.0f, 0.0f, 1.0f); //right
 	possibLD[1] = V3(0.0f, 1.0f, 1.0f); //up
 	possibLD[2] = V3(1.0f, 0.0f, 1.0f); //left
-	possibLD[3] = V3(-1.0f, 0.0f, 1.0f); //??
-	possibLD[4] = V3(-1.0f, 0.0f, 1.0f); //???
+	possibLD[3] = V3(-1.0f, 1.0f, 0.0f); //??
+	possibLD[4] = V3(1.0f, 1.0f, 0.0f); //???
 
-	int set1, set2, set3;
-	set1 = set2 = set3 = -1;
-
-	
+	int * set = new int[3]; 
 
 	lDirs->Invert();
 	
@@ -461,9 +458,8 @@ void Scene::getNormalsFive()
 	
 	normals = new V3[imgW*imgH];
 
-	float testBVals[5];
-
-
+	float * testBVals = new float[5];
+	
 	for(int i = 0; i < imgW; i++)
 	{
 		for(int j = 0; j < imgH; j++)
@@ -474,9 +470,17 @@ void Scene::getNormalsFive()
 			testBVals[3] = tB4->Getv(i,j)[0];
 			testBVals[4] = tB5->Getv(i,j)[0];
 
-			//V3 colors = V3(r,u,l);
+			getSet(testBVals, set);
 
-			//normals[j*imgW + i] = *lDirs*colors;
+			lDirs->SetRow(0, possibLD[set[0]].Normalized());
+			lDirs->SetRow(1, possibLD[set[1]].Normalized());
+			lDirs->SetRow(2, possibLD[set[2]].Normalized());
+
+			V3 colors = V3(testBVals[set[0]],
+						   testBVals[set[1]],
+						   testBVals[set[2]]);
+
+			normals[j*imgW + i] = *lDirs*colors;
 			
 			normals[j*imgW + i].Normalized();
 
@@ -485,4 +489,44 @@ void Scene::getNormalsFive()
 	}
 
 	//img->show();
+}
+
+void Scene::getSet(float * vals, int * set)
+{
+	float minVal, maxVal;
+	minVal = 10;
+	maxVal = -1;
+
+	int minIndex, maxIndex;
+	minIndex = maxIndex = -1;
+
+
+	for(int i = 0; i < 5; i++)
+	{
+		//cerr << i << "---" << vals[i] << endl;
+		if (vals[i] <= minVal)
+		{
+			minVal = vals[i];
+			//cerr << vals[i] << endl;;
+			minIndex = i;
+		}
+
+		if (vals[i] >= maxVal)
+		{
+			maxVal = vals[i];
+			maxIndex = i;
+		}
+	}
+	
+	int setVal = 0;
+
+	for(int i = 0; i < 5; i++)
+	{
+		if(i != minIndex && i != maxIndex)
+		{
+			set[setVal] = i;
+			setVal++;
+		}
+	}
+
 }
