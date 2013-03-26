@@ -57,16 +57,30 @@ void GUI::cb_Z1_i(Fl_Button*, void*) {
 void GUI::cb_Z1(Fl_Button* o, void* v) {
   ((GUI*)(o->parent()->user_data()))->cb_Z1_i(o,v);
 }
+
+void GUI::cb_Render1_i(Fl_Button*, void*) {
+  SetLightPosFive();
+}
+void GUI::cb_Render1(Fl_Button* o, void* v) {
+  ((GUI*)(o->parent()->user_data()))->cb_Render1_i(o,v);
+}
+
+void GUI::cb_Render2_i(Fl_Button*, void*) {
+  SetLightPosSpec();
+}
+void GUI::cb_Render2(Fl_Button* o, void* v) {
+  ((GUI*)(o->parent()->user_data()))->cb_Render2_i(o,v);
+}
 #include "scene.h"
 
 GUI::GUI() {
-  { uiw = new Fl_Double_Window(373, 312, "Evan\'s Photometric Stereo");
+  { uiw = new Fl_Double_Window(373, 379, "Evan\'s Photometric Stereo");
     uiw->user_data((void*)(this));
     { Fl_Button* o = new Fl_Button(70, 20, 230, 40, "DBG");
       o->selection_color(FL_DARK_RED);
       o->callback((Fl_Callback*)cb_DBG);
     } // Fl_Button* o
-    { Fl_Button* o = new Fl_Button(70, 245, 230, 40, "Render");
+    { Fl_Button* o = new Fl_Button(40, 245, 140, 40, "Render from 3 BW");
       o->callback((Fl_Callback*)cb_Render);
     } // Fl_Button* o
     { Fl_Button* o = new Fl_Button(70, 146, 65, 40, "X++");
@@ -89,6 +103,12 @@ GUI::GUI() {
     } // Fl_Button* o
     { lPosDisp = new Fl_Text_Display(150, 95, 75, 40, "Current Light Position");
     } // Fl_Text_Display* lPosDisp
+    { Fl_Button* o = new Fl_Button(200, 245, 140, 40, "Render from 5 Color");
+      o->callback((Fl_Callback*)cb_Render1);
+    } // Fl_Button* o
+    { Fl_Button* o = new Fl_Button(95, 295, 190, 40, "Render Special from 5 Color");
+      o->callback((Fl_Callback*)cb_Render2);
+    } // Fl_Button* o
     uiw->end();
   } // Fl_Double_Window* uiw
 }
@@ -132,4 +152,12 @@ void GUI::LightNegZ() {
 
 void GUI::SetLightPos() {
   scene->setLightPos();
+}
+
+void GUI::SetLightPosFive() {
+  scene->setLightPosFive();
+}
+
+void GUI::SetLightPosSpec() {
+  scene->setLightPosSpecial();
 }

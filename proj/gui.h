@@ -30,6 +30,12 @@ private:
   static void cb_Z1(Fl_Button*, void*);
 public:
   Fl_Text_Display *lPosDisp;
+private:
+  void cb_Render1_i(Fl_Button*, void*);
+  static void cb_Render1(Fl_Button*, void*);
+  void cb_Render2_i(Fl_Button*, void*);
+  static void cb_Render2(Fl_Button*, void*);
+public:
   void show();
   void DBG_cb();
   void LightPosX();
@@ -39,5 +45,7 @@ public:
   void LightPosZ();
   void LightNegZ();
   void SetLightPos();
+  void SetLightPosFive();
+  void SetLightPosSpec();
 };
 #endif

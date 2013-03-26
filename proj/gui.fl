@@ -8,8 +8,8 @@ class GUI {open
   Function {GUI()} {open
   } {
     Fl_Window uiw {
-      label {Evan's Photometric Stereo} open selected
-      xywh {675 144 373 312} type Double visible
+      label {Evan's Photometric Stereo} open
+      xywh {675 144 373 379} type Double visible
     } {
       Fl_Button {} {
         label DBG
@@ -17,9 +17,9 @@ class GUI {open
         xywh {70 20 230 40} selection_color 72
       }
       Fl_Button {} {
-        label Render
+        label {Render from 3 BW}
         callback {SetLightPos()}
-        xywh {70 245 230 40}
+        xywh {40 245 140 40}
       }
       Fl_Button {} {
         label {X++}
@@ -54,6 +54,16 @@ class GUI {open
       Fl_Text_Display lPosDisp {
         label {Current Light Position}
         xywh {150 95 75 40}
+      }
+      Fl_Button {} {
+        label {Render from 5 Color}
+        callback {SetLightPosFive()}
+        xywh {200 245 140 40}
+      }
+      Fl_Button {} {
+        label {Render Special from 5 Color}
+        callback {SetLightPosSpec()}
+        xywh {95 295 190 40}
       }
     }
   }
@@ -96,5 +106,14 @@ class GUI {open
   Function {SetLightPos()} {open
   } {
     code {scene->setLightPos();} {}
+  }
+  Function {SetLightPosFive()} {open
+  } {
+    code {scene->setLightPosFive();} {}
+  }
+  Function {SetLightPosSpec()} {open
+  } {
+    code {scene->setLightPosSpecial();} {selected
+    }
   }
 } 

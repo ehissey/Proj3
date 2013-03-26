@@ -54,6 +54,8 @@ public:
 	void lightNegZ();
 
 	void setLightPos();
+	void setLightPosFive();
+	void setLightPosSpecial();
 
 	FrameBuffer * openImg(string fileName);
 	FrameBuffer * openImgGrey(string fileName);
@@ -61,7 +63,8 @@ public:
 	void getNormals();
 	void getNormalsFive();
 	void relight(V3 lightPos, FrameBuffer * img);
-
+	void relightCol(V3 lightPos, FrameBuffer * img);
+	void relightSpecial(V3 lightPos, FrameBuffer * img);
 	void changePositionDisplay();
 
 	void getSet(float * vals, int * set);

@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+
 #include "scene.h"
 #include "m33.h"
 #include "ppc.h"
@@ -7,8 +9,6 @@
 #include <iostream>
 #include<math.h>
 #include <sstream>
-#include <climits>
-
 
 using namespace std;
 using namespace cimg_library;
@@ -100,7 +100,7 @@ Scene::Scene()
 
 	imgScene = new FrameBuffer(u0+350, v0+25, right->w, right->h);
 
-	getNormalsFive();
+	
 	
 	curLightPos = V3(0,0,0);
 }
@@ -137,24 +137,21 @@ void Scene::Render()
         {
             tms[tmi].RenderWF(ppc, fb); // wireframe
         }
-        else {
+        else 
+		{
             tms[tmi].Render(ppc, fb); // regular filled rendering
         }
     }
 
-
-    fb->redraw(); // this calls FrameBuffer::draw wich posts pixels with glDrawPixels;
-
+	// this calls FrameBuffer::draw wich posts pixels with glDrawPixels;
+    fb->redraw(); 
 }
 
 // function linked to the DBG GUI button for testing new features
 void Scene::DBG() 
 {
-
     cerr << "INFO: DBG" << endl;
-
 }
-
 
 void Scene::lightPosX()
 {
@@ -194,7 +191,20 @@ void Scene::lightNegZ()
 
 void Scene::setLightPos()
 {
+	getNormals();
 	relight(curLightPos, imgScene);
+}
+
+void Scene::setLightPosFive()
+{
+	getNormalsFive();
+	relightCol(curLightPos, imgScene);
+}
+
+void Scene::setLightPosSpecial()
+{
+	getNormals();
+	relightSpecial(curLightPos, imgScene);
 }
 
 ////////// HW rendering 
@@ -206,7 +216,6 @@ void Scene::setLightPos()
 // called by Scene::RenderHW and by Scene::RenderGPU, which is itself called by the draw callback of the HW framebuffer
 void Scene::FrameSetupHW(PPC * cam)
 {
-
     // OpenGL setup
     glEnable(GL_DEPTH_TEST);
     //  glEnable(GL_CULL_FACE);
@@ -221,7 +230,6 @@ void Scene::FrameSetupHW(PPC * cam)
     cam->SetIntrinsicsHW();
     // set extrinsics
     cam->SetExtrinsicsHW();
-
 }
 
 
@@ -238,7 +246,6 @@ void Scene::RenderHW()
             continue;
         tms[tmi].RenderHW();
     }
-
 }
 
 
@@ -282,7 +289,6 @@ FrameBuffer * Scene::openImgGrey(string fileName)
 {
     CImg<unsigned char> src(fileName.c_str());
 
-
     int r, g, b;
 
     int width = src.width();
@@ -318,7 +324,6 @@ FrameBuffer * Scene::openImg(string fileName)
 {
     CImg<unsigned char> src(fileName.c_str());
 
-
     int r, g, b;
 
     int width = src.width();
@@ -352,8 +357,6 @@ FrameBuffer * Scene::openImg(string fileName)
 
 void Scene::getNormals()
 {
-	
-
 	lDirs = new M33();
 
 	lDirs->SetRow(0, V3(-1.0f, 0.0f, 1.0f).Normalized());
@@ -386,9 +389,8 @@ void Scene::getNormals()
 			img->Set(i,j, normals[j*imgW + i].GetColor());
 		}
 	}
-
-	//img->show();
 }
+
 void Scene::relight(V3 lightPos, FrameBuffer * img)
 {
 	const int imgW = (int) right->w;
@@ -409,13 +411,82 @@ void Scene::relight(V3 lightPos, FrameBuffer * img)
 			img->Set(i,j, newCol.GetColor());
 		}
 	}
+
+	img->redraw();
+	img->show();
+}
+
+void Scene::relightCol(V3 lightPos, FrameBuffer * img)
+{
+	const int imgW = (int) right->w;
+	const int imgH = (int) right->h;
+
+	V3 lightDir = lightPos-V3(0,0,-1);
+	
+	lightDir.Normalized();
+
+	for(int i = 0; i < imgW; i++)
+	{
+		for(int j = 0; j < imgH; j++)
+		{
+			float albedo = sqrt(normals[j*imgW + i] * normals[j*imgW + i]);
+			
+			float rColor = albedo*(normals[j*imgW + i]*lightDir);
+			V3 newCol = V3(rColor,rColor,rColor);
+			img->Set(i,j, newCol.GetColor());
+		}
+	}
+
+	img->redraw();
+	img->show();
+}
+
+void Scene::relightSpecial(V3 lightPos, FrameBuffer * img)
+{
+	const int imgW = (int) right->w;
+	const int imgH = (int) right->h;
+
+	V3 lightDir = lightPos-V3(0,0,-1);
+	
+	lightDir.Normalized();
+
+	for(int i = 0; i < imgW; i++)
+	{
+		for(int j = 0; j < imgH; j++)
+		{
+			float albedo = sqrt(normals[j*imgW + i] * normals[j*imgW + i]);
+			
+			float rColor = albedo*(normals[j*imgW + i]*lightDir);
+			V3 newCol = V3(rColor,rColor,rColor);
+
+			float eyeToNormAngle = acos(normals[j*imgW + i]*V3(0,0,1).Normalized() / 
+				  (normals[j*imgW + i].Length() * V3(0,0,1).Normalized().Length()));
+
+			eyeToNormAngle = eyeToNormAngle/(2*M_PI) * 360;
+
+			if(eyeToNormAngle >= 0 && eyeToNormAngle <= 30)
+			{
+				newCol = V3(1,0,0);
+			}
+			else if(eyeToNormAngle >= 30 && eyeToNormAngle <= 45)
+			{
+				newCol = V3(0,1,0);
+			}
+			else if(eyeToNormAngle >= 45 && eyeToNormAngle <= 60)
+			{
+				newCol = V3(0,0,1);
+			}
+
+			img->Set(i,j, newCol.GetColor());
+		}
+	}
+
 	img->redraw();
 	img->show();
 }
 
 void Scene::changePositionDisplay()
 {
-	
 	std::ostringstream oss;
 
 	oss << curLightPos[0] << " " 
@@ -428,15 +499,10 @@ void Scene::changePositionDisplay()
 
 	buff->text(posDisp.c_str());
 	gui->show();
-
-	//lPosDisp->buffer()->text(scene->posDisp.c_str());
-
 }
 
 void Scene::getNormalsFive()
 {
-	
-
 	lDirs = new M33();
 
 	V3 possibLD[5];
@@ -472,9 +538,9 @@ void Scene::getNormalsFive()
 
 			getSet(testBVals, set);
 
-			lDirs->SetRow(0, possibLD[set[0]].Normalized());
-			lDirs->SetRow(1, possibLD[set[1]].Normalized());
-			lDirs->SetRow(2, possibLD[set[2]].Normalized());
+			lDirs->SetColumn(0, possibLD[set[0]].Normalized());
+			lDirs->SetColumn(1, possibLD[set[1]].Normalized());
+			lDirs->SetColumn(2, possibLD[set[2]].Normalized());
 
 			V3 colors = V3(testBVals[set[0]],
 						   testBVals[set[1]],
@@ -487,27 +553,23 @@ void Scene::getNormalsFive()
 			img->Set(i,j, normals[j*imgW + i].GetColor());
 		}
 	}
-
-	//img->show();
 }
 
 void Scene::getSet(float * vals, int * set)
 {
 	float minVal, maxVal;
-	minVal = 10;
+	minVal = 2;
 	maxVal = -1;
 
 	int minIndex, maxIndex;
 	minIndex = maxIndex = -1;
 
-
 	for(int i = 0; i < 5; i++)
 	{
-		//cerr << i << "---" << vals[i] << endl;
 		if (vals[i] <= minVal)
 		{
 			minVal = vals[i];
-			//cerr << vals[i] << endl;;
+
 			minIndex = i;
 		}
 
@@ -528,5 +590,4 @@ void Scene::getSet(float * vals, int * set)
 			setVal++;
 		}
 	}
-
 }
