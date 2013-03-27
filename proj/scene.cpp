@@ -92,15 +92,21 @@ Scene::Scene()
 	up = openImgGrey("pics/testA-2.bmp");
 	left = openImgGrey("pics/testA-3.bmp");
 
-	tB1 = openImgGrey("pics/testB-1.bmp");
-	tB2 = openImgGrey("pics/testB-2.bmp");
-	tB3 = openImgGrey("pics/testB-3.bmp");
-	tB4 = openImgGrey("pics/testB-4.bmp");
-	tB5 = openImgGrey("pics/testB-5.bmp");
+	tB1 = openImg("pics/testB-1.bmp");
+	tB2 = openImg("pics/testB-2.bmp");
+	tB3 = openImg("pics/testB-3.bmp");
+	tB4 = openImg("pics/testB-4.bmp");
+	tB5 = openImg("pics/testB-5.bmp");
+
+    tBg1 = openImgGrey("pics/testB-1.bmp");
+	tBg2 = openImgGrey("pics/testB-2.bmp");
+	tBg3 = openImgGrey("pics/testB-3.bmp");
+	tBg4 = openImgGrey("pics/testB-4.bmp");
+	tBg5 = openImgGrey("pics/testB-5.bmp");
+
 
 	imgScene = new FrameBuffer(u0+350, v0+25, right->w, right->h);
-
-	
+    imgFive = new FrameBuffer(u0+350, v0+25, tB1->w, tB1->h);
 	
 	curLightPos = V3(0,0,0);
 }
@@ -197,12 +203,15 @@ void Scene::setLightPos()
 
 void Scene::setLightPosFive()
 {
+    
+
 	getNormalsFive();
-	relightCol(curLightPos, imgScene);
+	relightCol(curLightPos, imgFive);
 }
 
 void Scene::setLightPosSpecial()
 {
+    
 	getNormals();
 	relightSpecial(curLightPos, imgScene);
 }
@@ -341,12 +350,12 @@ FrameBuffer * Scene::openImg(string fileName)
             g = src.atXY(w, h, 1);
             b = src.atXY(w, h, 2);
 
-			float greyCol = (float)r/255 + (float)g/255 + (float)b/255;
-			greyCol/= 3;
+			//float greyCol = (float)r/255 + (float)g/255 + (float)b/255;
+			//greyCol/= 3;
             
-			V3 colorVal(greyCol, greyCol, greyCol);
+			//V3 colorVal(greyCol, greyCol, greyCol);
 
-			//V3 colorVal((float)r/255, (float)g/255, (float)b/255);
+			V3 colorVal((float)r/255, (float)g/255, (float)b/255);
 			
             img->Set(w, h, colorVal.GetColor());
         }
@@ -368,7 +377,7 @@ void Scene::getNormals()
 	const int imgW = (int) right->w;
 	const int imgH = (int) right->h;
 
-    FrameBuffer * img = new FrameBuffer(0, 0, imgW, imgH);
+    //FrameBuffer * img = new FrameBuffer(0, 0, imgW, imgH);
 	
 	normals = new V3[imgW*imgH];	
 
@@ -384,9 +393,8 @@ void Scene::getNormals()
 
 			normals[j*imgW + i] = *lDirs*colors;
 			
-			normals[j*imgW + i].Normalized();
 
-			img->Set(i,j, normals[j*imgW + i].GetColor());
+			//img->Set(i,j, normals[j*imgW + i].GetColor());
 		}
 	}
 }
@@ -406,6 +414,7 @@ void Scene::relight(V3 lightPos, FrameBuffer * img)
 		{
 			float albedo = sqrt(normals[j*imgW + i] * normals[j*imgW + i]);
 			
+			normals[j*imgW + i].Normalized();
 			float rColor = albedo*(normals[j*imgW + i]*lightDir);
 			V3 newCol = V3(rColor,rColor,rColor);
 			img->Set(i,j, newCol.GetColor());
@@ -418,21 +427,54 @@ void Scene::relight(V3 lightPos, FrameBuffer * img)
 
 void Scene::relightCol(V3 lightPos, FrameBuffer * img)
 {
-	const int imgW = (int) right->w;
-	const int imgH = (int) right->h;
+	const int imgW = (int) tB1->w;
+	const int imgH = (int) tB1->h;
 
 	V3 lightDir = lightPos-V3(0,0,-1);
 	
 	lightDir.Normalized();
 
+ 
 	for(int i = 0; i < imgW; i++)
 	{
 		for(int j = 0; j < imgH; j++)
 		{
 			float albedo = sqrt(normals[j*imgW + i] * normals[j*imgW + i]);
 			
-			float rColor = albedo*(normals[j*imgW + i]*lightDir);
-			V3 newCol = V3(rColor,rColor,rColor);
+			normals[j*imgW + i].Normalized();
+
+            V3 bVals [5];
+            
+            bVals[0] = tB1->Getv(i,j);
+			bVals[1] = tB2->Getv(i,j);
+			bVals[2] = tB3->Getv(i,j);
+            bVals[3] = tB4->Getv(i,j);
+            bVals[4] = tB5->Getv(i,j);
+
+            float rAvg, gAvg, bAvg;
+
+            rAvg = gAvg = bAvg = 0;
+            for(int k = 0; k < 3; k++)
+            {
+                rAvg += bVals[set[j*imgW + i+k]][0];
+                gAvg += bVals[set[j*imgW + i+k]][1];
+                bAvg += bVals[set[j*imgW + i+k]][2];
+            }
+
+            rAvg /= 3;
+            gAvg /= 3;
+            bAvg /= 3;
+
+            float rColor = albedo*(normals[j*imgW + i]*lightDir);
+
+			//V3 newCol = V3(rAvg, gAvg, bAvg);
+
+            V3 newCol = V3(rColor, rColor, rColor);
+           // cerr << newCol[0] << " " << newCol[1] << " " << newCol[2] << endl;
+
+            //newCol = newCol * rColor;
+            //newCol.Normalized();
+
 			img->Set(i,j, newCol.GetColor());
 		}
 	}
@@ -456,10 +498,11 @@ void Scene::relightSpecial(V3 lightPos, FrameBuffer * img)
 		{
 			float albedo = sqrt(normals[j*imgW + i] * normals[j*imgW + i]);
 			
+			normals[j*imgW + i].Normalized();
 			float rColor = albedo*(normals[j*imgW + i]*lightDir);
-			V3 newCol = V3(rColor,rColor,rColor);
+			V3 newCol = V3(rColor,0,0);
 
-			float eyeToNormAngle = acos(normals[j*imgW + i]*V3(0,0,1).Normalized() / 
+			/*float eyeToNormAngle = acos(normals[j*imgW + i]*V3(0,0,1).Normalized() / 
 				  (normals[j*imgW + i].Length() * V3(0,0,1).Normalized().Length()));
 
 			eyeToNormAngle = eyeToNormAngle/(2*M_PI) * 360;
@@ -475,7 +518,8 @@ void Scene::relightSpecial(V3 lightPos, FrameBuffer * img)
 			else if(eyeToNormAngle >= 45 && eyeToNormAngle <= 60)
 			{
 				newCol = V3(0,0,1);
-			}
+			}*/
+
 
 			img->Set(i,j, newCol.GetColor());
 		}
@@ -513,14 +557,16 @@ void Scene::getNormalsFive()
 	possibLD[3] = V3(-1.0f, 1.0f, 0.0f); //??
 	possibLD[4] = V3(1.0f, 1.0f, 0.0f); //???
 
-	int * set = new int[3]; 
+	
 
 	lDirs->Invert();
 	
-	const int imgW = (int) right->w;
-	const int imgH = (int) right->h;
+	const int imgW = (int) tB1->w;
+	const int imgH = (int) tB1->h;
 
-    FrameBuffer * img = new FrameBuffer(0, 0, imgW, imgH);
+    set = new int[imgW*imgH*3]; 
+
+    //FrameBuffer * img = new FrameBuffer(0, 0, imgW, imgH);
 	
 	normals = new V3[imgW*imgH];
 
@@ -530,32 +576,31 @@ void Scene::getNormalsFive()
 	{
 		for(int j = 0; j < imgH; j++)
 		{
-			testBVals[0] = tB1->Getv(i,j)[0];
-			testBVals[1] = tB2->Getv(i,j)[0];
-			testBVals[2] = tB3->Getv(i,j)[0];
-			testBVals[3] = tB4->Getv(i,j)[0];
-			testBVals[4] = tB5->Getv(i,j)[0];
+			testBVals[0] = tBg1->Getv(i,j)[0];
+			testBVals[1] = tBg2->Getv(i,j)[0];
+			testBVals[2] = tBg3->Getv(i,j)[0];
+			testBVals[3] = tBg4->Getv(i,j)[0];
+			testBVals[4] = tBg5->Getv(i,j)[0];
 
-			getSet(testBVals, set);
+			getSet(testBVals, set, j*imgW + i);
 
-			lDirs->SetColumn(0, possibLD[set[0]].Normalized());
-			lDirs->SetColumn(1, possibLD[set[1]].Normalized());
-			lDirs->SetColumn(2, possibLD[set[2]].Normalized());
+			lDirs->SetColumn(0, possibLD[set[j*imgW + i]].Normalized());
+			lDirs->SetColumn(1, possibLD[set[j*imgW + i+1]].Normalized());
+			lDirs->SetColumn(2, possibLD[set[j*imgW + i+2]].Normalized());
 
-			V3 colors = V3(testBVals[set[0]],
-						   testBVals[set[1]],
-						   testBVals[set[2]]);
+			V3 colors = V3(testBVals[set[j*imgW + i]],
+						   testBVals[set[j*imgW + i+1]],
+						   testBVals[set[j*imgW + i+2]]);
 
 			normals[j*imgW + i] = *lDirs*colors;
 			
-			normals[j*imgW + i].Normalized();
 
-			img->Set(i,j, normals[j*imgW + i].GetColor());
+			//img->Set(i,j, normals[j*imgW + i].GetColor());
 		}
 	}
 }
 
-void Scene::getSet(float * vals, int * set)
+void Scene::getSet(float * vals, int * set, int index)
 {
 	float minVal, maxVal;
 	minVal = 2;
@@ -586,7 +631,7 @@ void Scene::getSet(float * vals, int * set)
 	{
 		if(i != minIndex && i != maxIndex)
 		{
-			set[setVal] = i;
+			set[index + setVal] = i;
 			setVal++;
 		}
 	}

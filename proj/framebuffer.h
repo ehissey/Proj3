@@ -23,6 +23,7 @@ public:
   // SW drawing
   void Set(unsigned int color); // set all pixels to color
   void SetZB(float z0); // set all z values to z0
+  void SetSize(int newW, int newH);
   unsigned int Get(int u, int v); // get color at (u, v)
   V3 Getv(int u, int v); // get into vector color format
   void Set(int u, int v, unsigned int color); // set color at (u, v)
@@ -32,7 +33,7 @@ public:
   void SetAsChecker(int cs, unsigned int cols[2]); // set as checker with checker size cs and colors cs[0] and cs[1]
   void DrawSegment(V3 P0, V3 P1, V3 c0, V3 c1); // draw segment between projected point P0 and P1, with colors c0 and c1
   void DrawSegment3D(V3 P0, V3 P1, V3 c0, V3 c1, PPC *ppc); // project 3-D segment with ppc and then draw
-
+  void MouseHandle();
   // some image processing
   void Brighten(float scf);
   void FindEdges();

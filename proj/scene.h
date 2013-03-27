@@ -17,18 +17,20 @@ public:
     // interfaces for GPU programming
     CGInterface *cgi;
     ShaderOneInterface *soi;
-
+    int *rCol, *gCol, *bCol;
+    int * set;
 	string posDisp;
 	Fl_Text_Buffer * buff;
-
+    int u0, v0;
     PPC *ppc; // camera used to render current frame
 
     TMesh *tms; // geometry
     int tmsN; // number of triangle meshes
     GUI *gui; // user interface
     
-	FrameBuffer *fb, *hwfb, *up, *left, *right,* imgScene; // SW and HW framebuffers
+	FrameBuffer *fb, *hwfb, *up, *left, *right,* imgScene, *imgFive; // SW and HW framebuffers
 	FrameBuffer *tB1, *tB2, *tB3, *tB4, *tB5;  
+    FrameBuffer *tBg1, *tBg2, *tBg3, *tBg4, *tBg5;  
 
 	M33 * lDirs; //light directions from images
 
@@ -67,7 +69,7 @@ public:
 	void relightSpecial(V3 lightPos, FrameBuffer * img);
 	void changePositionDisplay();
 
-	void getSet(float * vals, int * set);
+	void getSet(float * vals, int * set, int index);
 };
 
 extern Scene *scene;

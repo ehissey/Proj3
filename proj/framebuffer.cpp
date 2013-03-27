@@ -27,6 +27,13 @@ void FrameBuffer::SetZB(float z0) {
 
 }
 
+void FrameBuffer::SetSize(int newW, int newH)
+{
+    w = newW;
+    h = newH;
+}
+
+
 
 // rendering callback; see header file comment
 void FrameBuffer::draw() {
@@ -202,6 +209,11 @@ int FrameBuffer::handle(int event)
 		MouseWheelHandle();
 		return 0;
 	}
+    case FL_MOVE:
+    {
+        MouseHandle();
+        return 0;
+    }
 
 	default:
 		break;
@@ -225,6 +237,11 @@ void FrameBuffer::MouseWheelHandle()
 		scene->Render();		
 	}
 
+}
+
+void FrameBuffer::MouseHandle() 
+{
+    //Fl::even_x();
 }
 
 void FrameBuffer::KeyboardHandle() {

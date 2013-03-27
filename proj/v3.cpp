@@ -192,7 +192,7 @@ V3 V3::RotateDirectionAboutArbitraryAxis(V3 aD,  float thetad) {
 V3 V3::Normalized() {
 
   V3 ret = *this;
-  ret = ret / ret.Length();
+  *this = ret / ret.Length();
   return ret;
 
 }
